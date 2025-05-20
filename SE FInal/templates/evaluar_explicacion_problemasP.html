@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación de Explicación de Problemas Propuestos - {{ unidad_num|capitalize }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    .puntos-input {
+      font-weight: bold;
+      text-align: center;
+    }
+    .table thead th {
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Evaluación: Explicación de Problemas Propuestos - {{ unidad_num|capitalize }}</h2>
+    <form action="{{ url_for('evaluar_explicacion_problemasP', unidad=unidad_num) }}" method="post">
+
+      {% set unidad_numero = unidad_num[-1] %}
+      {% set items = [
+        ("1", "Realiza su presentación mencionando su nombre completo.", 5),
+        ("2", "Menciona el indicador de alcance y la descripción del problema a resolver.", 5),
+        ("3", "Maneja términos, conceptos y conocimientos en su exposición de forma correcta.", 30),
+        ("4", "Explica la resolución del problema de forma coherente y clara.", 30),
+        ("5", "Interactúa con el grupo manteniendo contacto visual durante la exposición.", 5),
+        ("6", "Emplea un tono de voz adecuado durante la exposición y sin utilizar muletillas.", 5),
+        ("7", "Organiza y planea su presentación de manera ordenada y planificada.", 5),
+        ("8", "Responde a las preguntas de forma coherente y clara.", 5),
+        ("9", "Cumple con el tiempo planeado para la sesión: 6 a 10 minutos.", 10)
+      ] %}
+
+      <table class="table table-bordered mt-4">
+        <thead class="table-secondary">
+          <tr>
+            <th>No.</th>
+            <th>Criterio</th>
+            <th>Valor</th>
+            <th>Cumple</th>
+            <th>Puntos</th>
+            <th>Retroalimentación</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for num, criterio, valor in items %}
+          <tr>
+            <td>{{ num }}</td>
+            <td>{{ criterio }}</td>
+            <td>{{ valor }} pts</td>
+            <td>
+              <select name="cumple_unidad{{ unidad_numero }}_{{ num }}" class="form-select cumple-select" 
+                      onchange="actualizarPuntos(this, {{ valor }})">
+                <option value="0" {% if valores.get('cumple_unidad' ~ unidad_numero ~ '_' ~ num) == '0' %} selected {% endif %}>No</option>
+                <option value="1" {% if valores.get('cumple_unidad' ~ unidad_numero ~ '_' ~ num) == '1' %} selected {% endif %}>Sí</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" 
+                     name="puntos_unidad{{ unidad_numero }}_{{ num }}" 
+                     class="form-control puntos-input" 
+                     readonly
+                     value="{{ valores.get('puntos_unidad' ~ unidad_numero ~ '_' ~ num, '0') }}">
+            </td>
+            <td>
+              <input type="text" 
+                     name="retro_unidad{{ unidad_numero }}_{{ num }}" 
+                     class="form-control"
+                     value="{{ valores.get('retro_unidad' ~ unidad_numero ~ '_' ~ num, '') }}">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="table-dark">
+            <td colspan="4" class="text-end"><strong>Puntuación Total</strong></td>
+            <td>
+              <input type="text" 
+                     name="total" 
+                     id="total" 
+                     class="form-control puntos-input" 
+                     readonly
+                     value="{{ valores.get('total', '0') }}">
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success btn-lg">Guardar Evaluación</button>
+        <a href="{{ url_for('unidad', num=unidad_numero) }}" class="btn btn-outline-secondary btn-lg">Volver a Unidad</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function actualizarPuntos(selectElement, valor) {
+      const row = selectElement.closest('tr');
+      const puntosInput = row.querySelector('.puntos-input');
+      puntosInput.value = selectElement.value === "1" ? valor : 0;
+      calcularTotal();
+    }
+
+    function calcularTotal() {
+      let total = 0;
+      document.querySelectorAll('.puntos-input').forEach(input => {
+        if (input.name.startsWith('puntos_unidad')) {
+          total += parseFloat(input.value) || 0;
+        }
+      });
+      document.getElementById('total').value = total;
+    }
+
+    // Inicializar al cargar la página
+    window.onload = function() {
+      document.querySelectorAll('.cumple-select').forEach(select => {
+        const valor = parseInt(select.closest('tr').querySelector('td:nth-child(3)').textContent);
+        actualizarPuntos(select, valor);
+      });
+    };
+  </script>
+</body>
+</html>

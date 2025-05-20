@@ -1,0 +1,136 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación Unidad {{ unidad }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card-rubro { min-height: 120px; transition: transform 0.2s ease; }
+    .card-rubro:hover { transform: scale(1.03); }
+    .btn-large { font-size: 1rem; padding: 0.8rem 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+<h1 class="text-center mb-4">Evaluación de Proyecto - Unidad {{ unidad }}</h1>
+
+{% if calificacion %}
+  <div class="alert alert-info text-center">
+    <strong>Calificación actual:</strong> {{ calificacion }}
+  </div>
+{% endif %}
+
+      
+    <form action="" method="post">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        <!-- Evaluar Problemas Propuestos -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">Problemas Propuestos</h5>
+              <a href="{{ url_for('evaluar_problemas', unidad='unidad' ~ unidad) }}" class="btn btn-primary btn-large w-100">Evaluar</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evaluación de Examen -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="examen" id="examen" value="1"
+                  {% if valores.get('examen') %} checked {% endif %}>
+                <label class="form-check-label" for="examen">Evaluación de Examen</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problemas adicionales en el examen -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="problemas_ad" id="problemas_ad" value="1"
+                  {% if valores.get('problemas_ad') %} checked {% endif %}>
+                <label class="form-check-label" for="problemas_ad">Problemas adicionales en el examen</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Participación en clase -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="participacion" id="participacion" value="1"
+                  {% if valores.get('participacion') %} checked {% endif %}>
+                <label class="form-check-label" for="participacion">Participación en clase</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explicación de Problemas Propuestos -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">Explicación de Problemas</h5>
+              <a href="{{ url_for('evaluar_explicacion_problemasP', unidad='unidad' ~ unidad) }}" class="btn btn-secondary btn-large w-100">Evaluar</a>
+            </div>
+          </div>
+        </div> 
+
+        <!-- Curso en línea -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="curso" id="curso" value="1"
+                  {% if valores.get('curso') %} checked {% endif %}>
+                <label class="form-check-label" for="curso">Constancia de Curso en Línea</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problemas adicionales propuestos -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="pextras" id="pextras" value="1"
+                  {% if valores.get('pextras') %} checked {% endif %}>
+                <label class="form-check-label" for="pextras">Problemas adicionales propuestos</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entrega puntual -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="puntualidad" id="puntualidad" value="1"
+                  {% if valores.get('puntualidad') %} checked {% endif %}>
+                <label class="form-check-label" for="puntualidad">Entrega puntual</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Botones -->
+      <div class="text-center mt-5 d-flex justify-content-center gap-3">
+        <button type="submit" class="btn btn-success btn-lg">Guardar Evaluación</button>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">Volver al Inicio</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

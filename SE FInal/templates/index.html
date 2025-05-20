@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación de Unidades - Bases de Datos Distribuidas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .card-unit {
+      transition: transform 0.2s ease;
+    }
+    .card-unit:hover {
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5 text-center">
+    <h1 class="mb-4">Evaluación de Unidades</h1>
+    <h4 class="text-muted mb-4">Bases de Datos Distribuidas</h4>
+
+    <div class="row justify-content-center mb-4">
+      {% for i in range(1, 5) %}
+        <div class="col-md-3 mb-3">
+          <div class="card card-unit shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">Unidad {{ i }}</h5>
+              <p>Calificación: 
+                <strong>
+                  {% if calificaciones[i] != 'Sin evaluar' %}
+                    {{ "%.2f"|format(calificaciones[i]) }}
+                  {% else %}
+                    {{ calificaciones[i] }}
+                  {% endif %}
+                </strong>
+              </p>
+              <a href="{{ url_for('unidad', num=i) }}" class="btn btn-primary w-100">Evaluar</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-4">
+        <div class="card shadow-sm border-success">
+          <div class="card-body">
+            <h5 class="card-title text-success">Resultado Final</h5>
+            <a href="{{ url_for('resultado_final') }}" class="btn btn-success w-100">Ver Calificación Final</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

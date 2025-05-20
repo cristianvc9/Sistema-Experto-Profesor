@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación Documentación - Unidad {{ unidad|capitalize }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .puntos-input {
+      font-weight: bold;
+      text-align: center;
+      background-color: #f8f9fa;
+    }
+    .table thead th {
+      background-color: #6c757d;
+      color: white;
+    }
+    .checkbox-lg {
+      transform: scale(1.5);
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h2 class="text-center mb-0">Evaluación: Documentación - Unidad {{ unidad|capitalize }}</h2>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('evaluar_documentacion', unidad=unidad) }}">
+          <table class="table table-bordered align-middle">
+            <thead class="table-dark text-center">
+              <tr>
+                <th style="width:5%">No.</th>
+                <th style="width:50%">Criterio</th>
+                <th style="width:15%">Valor</th>
+                <th style="width:10%">Cumple</th>
+                <th style="width:10%">Puntos</th>
+                <th style="width:10%">Retroalimentación</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set criterios = [
+                ("1", "La portada contiene todos los elementos indicados (logo, nombre, fecha, etc.)", 5),
+                ("2", "El desarrollo contiene fragmentación vertical, horizontal, replicación y distribución en tres sitios", 60),
+                ("3", "La conclusión tiene opinión personal coherente de cada integrante", 15),
+                ("4", "El trabajo tiene texto justificado, con títulos y subtítulos", 10),
+                ("5", "El trabajo está libre de errores ortográficos", 10)
+              ] %}
+
+              {% for num, descripcion, valor in criterios %}
+              <tr>
+                <td class="text-center">{{ num }}</td>
+                <td>{{ descripcion }}</td>
+                <td class="text-center">{{ valor }}</td>
+                <td class="text-center">
+                  <input type="checkbox" 
+                        class="form-check-input checkbox-lg" 
+                        name="cumple_{{ num }}" 
+                        id="cumple_{{ num }}"
+                        onchange="actualizarPuntos(this, {{ valor }})"
+                        {% if valores.get('cumple_' ~ num) == 'on' %} checked {% endif %}>
+                </td>
+                <td class="text-center">
+                  <input type="number" 
+                        class="form-control puntos-input" 
+                        name="puntos_{{ num }}" 
+                        id="puntos_{{ num }}"
+                        value="{{ valores.get('puntos_' ~ num, '0') }}"
+                        readonly>
+                </td>
+                <td>
+                  <input type="text" 
+                        class="form-control" 
+                        name="retro_{{ num }}" 
+                        value="{{ valores.get('retro_' ~ num, '') }}">
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="table-active">
+                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                <td></td>
+                <td class="text-center">
+                  <input type="text" 
+                        id="total" 
+                        name="total" 
+                        class="form-control puntos-input" 
+                        value="{{ valores.get('total', '0') }}"
+                        readonly>
+                </td>
+                <td></td>
+              </tr>
+              <tr class="table-info">
+                <td colspan="5" class="text-end"><strong>Puntaje Final (0-100):</strong></td>
+                <td>
+                  <input type="text" 
+                        id="score_final" 
+                        class="form-control puntos-input" 
+                        value="{{ valores.get('total', '0') }}"
+                        readonly>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <a href="{{ url_for('unidad', num=unidad[-1]) }}" class="btn btn-secondary me-md-2">
+              Volver
+            </a>
+            <button type="submit" class="btn btn-success">
+              Guardar Evaluación
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Actualiza puntos cuando cambia checkbox
+    function actualizarPuntos(checkbox, valor) {
+      const num = checkbox.id.split('_')[1];
+      const puntosInput = document.getElementById(`puntos_${num}`);
+      puntosInput.value = checkbox.checked ? valor : 0;
+      calcularTotal();
+    }
+
+    // Calcula el total
+    function calcularTotal() {
+      let total = 0;
+      for (let i = 1; i <= 5; i++) {
+        const input = document.getElementById(`puntos_${i}`);
+        if (input) total += parseFloat(input.value) || 0;
+      }
+      document.getElementById('total').value = total;
+      document.getElementById('score_final').value = total;
+    }
+
+    // Inicializa al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+      // Marcar checkboxes según valores guardados
+      {% for num, _, valor in criterios %}
+        {% if valores.get('cumple_' ~ num) == 'on' %}
+          document.getElementById('cumple_{{ num }}').checked = true;
+          document.getElementById('puntos_{{ num }}').value = {{ valor }};
+        {% endif %}
+      {% endfor %}
+      calcularTotal();
+    });
+  </script>
+</body>
+</html>

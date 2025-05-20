@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación de Problemas Propuestos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+<h2 class="text-center">Evaluación: Problemas Propuestos - {{ unidad|capitalize }}</h2>
+    <form action="{{ url_for('evaluar_problemas', unidad=unidad) }}" method="post">
+
+      {% set items = [
+        ("1", "Portada completa", [
+          ("5", "Excelente"),
+          ("4.5", "Notable"),
+          ("4", "Bueno"),
+          ("3.5", "Suficiente"),
+          ("0", "Insuficiente")
+        ]),
+        ("2", "Problemas 1-3 resueltos correctamente", [
+          ("25", "Todos correctos"),
+          ("20", "Dos correctos"),
+          ("0", "Menos de dos")
+        ]),
+        ("3", "Problemas 4-6 resueltos correctamente", [
+          ("25", "Todos correctos"),
+          ("20", "Dos correctos"),
+          ("0", "Menos de dos")
+        ]),
+        ("4", "Problemas 7-9 resueltos correctamente", [
+          ("25", "Todos correctos"),
+          ("20", "Dos correctos"),
+          ("0", "Menos de dos")
+        ]),
+        ("5", "Conclusiones", [
+          ("20", "Excelente"),
+          ("18", "Notable"),
+          ("16", "Bueno"),
+          ("14", "Suficiente"),
+          ("0", "Insuficiente")
+        ])
+      ] %}
+
+      <table class="table table-bordered mt-4">
+        <thead class="table-secondary">
+          <tr>
+            <th>No.</th>
+            <th>Criterio</th>
+            <th>Valor</th>
+            <th>Selecciona</th>
+            <th>Puntos</th>
+            <th>Retroalimentación</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for num, criterio, opciones in items %}
+          <tr>
+            <td>{{ num }}</td>
+            <td>{{ criterio }}</td>
+            <td>{{ opciones[0][0] }} pts</td>
+            <td>
+              <select name="seleccion_{{ num }}" class="form-select" onchange="actualizarPuntosYCalcular(this)">
+                {% for val, desc in opciones %}
+                <option value="{{ val }}" {% if valores and valores.get('seleccion_' ~ num) == val %} selected {% endif %}>
+                  {{ desc }} ({{ val }} pts)
+                </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="number" step="0.1" min="0" max="{{ opciones[0][0] }}" 
+                     name="puntos_{{ num }}" class="form-control puntos-input" 
+                     value="{{ valores.get('puntos_' ~ num, opciones[0][0]) if valores else opciones[0][0] }}" 
+                     oninput="calcularTotal()">
+            </td>
+            <td>
+              <input type="text" name="retro_{{ num }}" class="form-control" 
+                     value="{{ valores.get('retro_' ~ num, '') if valores else '' }}">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="table-dark">
+            <td colspan="4" class="text-end"><strong>Puntuación Total</strong></td>
+            <td>
+              <input type="text" name="total" id="total" class="form-control" readonly 
+                     value="{{ valores.get('total', '0') if valores else '0' }}">
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success">Guardar Evaluación</button>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">Volver al Inicio</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Función para actualizar el campo de puntos cuando se cambia la selección
+    function actualizarPuntosYCalcular(selectElement) {
+      // Obtener el número del criterio del nombre del select (seleccion_1, seleccion_2, etc.)
+      const num = selectElement.name.split('_')[1];
+      const puntosInput = document.querySelector(`input[name="puntos_${num}"]`);
+      
+      // Actualizar el valor del campo de puntos con el valor seleccionado
+      puntosInput.value = selectElement.value;
+      
+      // Calcular el total
+      calcularTotal();
+    }
+
+    // Función para calcular el total de puntos
+    function calcularTotal() {
+      let total = 0;
+      const puntosInputs = document.querySelectorAll('.puntos-input');
+      
+      puntosInputs.forEach(input => {
+        const maxVal = parseFloat(input.max);
+        let val = parseFloat(input.value) || 0;
+        
+        // Validar que el valor no exceda el máximo ni sea menor que 0
+        if (val > maxVal) {
+          input.value = maxVal;
+          val = maxVal;
+        } else if (val < 0) {
+          input.value = 0;
+          val = 0;
+        }
+        
+        total += val;
+      });
+      
+      document.getElementById('total').value = total.toFixed(1);
+    }
+
+    // Inicializar al cargar la página
+    window.onload = function() {
+      // Inicializar los campos de puntos con los valores seleccionados
+      const selects = document.querySelectorAll('select[name^="seleccion_"]');
+      selects.forEach(select => {
+        actualizarPuntosYCalcular(select);
+      });
+      
+      // Calcular el total inicial
+      calcularTotal();
+    };
+  </script>
+</body>
+</html>

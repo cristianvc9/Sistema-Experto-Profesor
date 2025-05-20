@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación Exposición Proyecto - {{ unidad|capitalize }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center">Evaluación: Exposición del Proyecto - {{ unidad|capitalize }}</h2>
+    <form action="{{ url_for('evaluar_exposicion', unidad=unidad) }}" method="post">
+
+      {% set items = [
+        ("1", "Presentación de integrantes", 5),
+        ("2", "Descripción del proyecto", 5),
+        ("3", "Explicación funcionamiento (fragmentación, replicación)", 10),
+        ("4", "Consultas solicitadas", 10),
+        ("5", "Manejo del sistema", 10),
+        ("6", "Resolución del proyecto", 10),
+        ("7", "Contacto visual", 5),
+        ("8", "Tono de voz", 5),
+        ("9", "Organización presentación", 5),
+        ("10", "Respuesta a consultas", 30),
+        ("11", "Cumplimiento de tiempo", 5)
+      ] %}
+
+      <table class="table table-bordered mt-4">
+        <thead class="table-secondary">
+          <tr>
+            <th>No.</th>
+            <th>Criterio</th>
+            <th>Valor</th>
+            <th>Cumple</th>
+            <th>Puntos</th>
+            <th>Retroalimentación</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for num, criterio, valor in items %}
+          <tr>
+            <td>{{ num }}</td>
+            <td>{{ criterio }}</td>
+            <td>{{ valor }} pts</td>
+            <td>
+              <select name="cumple_{{ num }}" class="form-select" onchange="actualizarPuntosYCalcular(this, {{ valor }})">
+                <option value="0" {% if valores and valores.get('cumple_' ~ num) == '0' %}selected{% endif %}>No</option>
+                <option value="{{ valor }}" {% if valores and valores.get('cumple_' ~ num) == valor|string %}selected{% endif %}>Sí</option>
+              </select>
+            </td>
+            <td>
+              <input type="number" step="0.1" min="0" max="{{ valor }}" 
+                     name="puntos_{{ num }}" class="form-control puntos-input" 
+                     value="{{ valores.get('puntos_' ~ num, '0') if valores else '0' }}" 
+                     readonly>
+            </td>
+            <td>
+              <input type="text" name="retro_{{ num }}" class="form-control" 
+                     value="{{ valores.get('retro_' ~ num, '') if valores else '' }}">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="table-dark">
+            <td colspan="4" class="text-end"><strong>Puntuación Total</strong></td>
+            <td>
+              <input type="text" name="total" id="total" class="form-control" readonly 
+                     value="{{ valores.get('total', '0') if valores else '0' }}">
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-success">Guardar Evaluación</button>
+        <a href="{{ url_for('unidad', num=unidad[-1]) }}" class="btn btn-outline-secondary">Volver</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Función para actualizar el campo de puntos
+    function actualizarPuntosYCalcular(selectElement, valor) {
+      const num = selectElement.name.split('_')[1];
+      const puntosInput = document.querySelector(`input[name="puntos_${num}"]`);
+      puntosInput.value = selectElement.value;
+      calcularTotal();
+    }
+
+    // Función para calcular el total
+    function calcularTotal() {
+      let total = 0;
+      document.querySelectorAll('.puntos-input').forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById('total').value = total.toFixed(1);
+    }
+
+    // Inicializar al cargar
+    window.onload = function() {
+      document.querySelectorAll('select[name^="cumple_"]').forEach(select => {
+        const valor = select.options[1].value; // Obtener el valor del option "Sí"
+        actualizarPuntosYCalcular(select, valor);
+      });
+    };
+  </script>
+</body>
+</html>

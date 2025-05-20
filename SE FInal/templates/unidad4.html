@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Evaluación Unidad 4</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .card-rubro { 
+      min-height: 150px; 
+      transition: transform 0.2s ease;
+      margin-bottom: 20px;
+    }
+    .card-rubro:hover { transform: scale(1.03); }
+    .btn-large { 
+      font-size: 1rem; 
+      padding: 0.8rem 1.2rem;
+      margin-bottom: 5px;
+    }
+    .badge-evaluado {
+      font-size: 0.85rem;
+      padding: 5px 8px;
+    }
+    .alert-calificacion {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .form-check-input {
+      transform: scale(1.3);
+      margin-top: 0.3rem;
+    }
+    .rubrica-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Evaluación de Proyecto - Unidad 4</h1>
+
+    {% if calificacion %}
+      <div class="alert alert-info alert-calificacion text-center">
+        <strong>Calificación actual:</strong> {{ calificacion }} / 100
+      </div>
+    {% endif %}
+
+    <form action="{{ url_for('unidad_4') }}" method="post">
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+
+        <!-- Exposición del Proyecto -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="rubrica-title">Exposición del Proyecto</h5>
+              <a href="{{ url_for('evaluar_exposicion', unidad='unidad4') }}" class="btn btn-warning btn-large w-100">
+                <i class="bi bi-mic"></i> Evaluar
+              </a>
+              {% if session.get('exposicion_score_unidad4') is not none %}
+                <span class="badge bg-success badge-evaluado mt-2">
+                  {{ session.get('exposicion_score_unidad4') }}/100 pts
+                </span>
+              {% else %}
+                <span class="badge bg-secondary badge-evaluado mt-2">
+                  Pendiente
+                </span>
+              {% endif %}
+              <div class="mt-2 small text-muted">
+                Peso: 30% de la calificación
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentación del Proyecto -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="rubrica-title">Documentación del Proyecto</h5>
+              <a href="{{ url_for('evaluar_documentacion', unidad='unidad4') }}" class="btn btn-warning btn-large w-100">
+                <i class="bi bi-file-text"></i> Evaluar
+              </a>
+              {% if session.get('documentacion_score_unidad4') is not none %}
+                <span class="badge bg-success badge-evaluado mt-2">
+                  {{ session.get('documentacion_score_unidad4') }}/100 pts
+                </span>
+              {% else %}
+                <span class="badge bg-secondary badge-evaluado mt-2">
+                  Pendiente
+                </span>
+              {% endif %}
+              <div class="mt-2 small text-muted">
+                Peso: 20% de la calificación
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explicación de Problemas -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="rubrica-title">Explicación de Problemas</h5>
+              <a href="{{ url_for('evaluar_explicacion_problemasP', unidad='unidad4') }}" class="btn btn-secondary btn-large w-100">
+                <i class="bi bi-chat-square-text"></i> Evaluar
+              </a>
+              {% if session.get('explicacion_score_unidad4') is not none %}
+                <span class="badge bg-success badge-evaluado mt-2">
+                  {{ session.get('explicacion_score_unidad4') }}/100 pts
+                </span>
+              {% else %}
+                <span class="badge bg-secondary badge-evaluado mt-2">
+                  Pendiente
+                </span>
+              {% endif %}
+              <div class="mt-2 small text-muted">
+                Peso: 5% de la calificación
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Componentes Simples -->
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="examen" id="examen" value="1" 
+                       {% if valores.get('examen') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="examen">
+                  <i class="bi bi-pencil"></i> Evaluación de Examen (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="problemas_ad" id="problemas_ad" value="1"
+                       {% if valores.get('problemas_ad') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="problemas_ad">
+                  <i class="bi bi-journal-code"></i> Problemas adicionales (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="participacion" id="participacion" value="1"
+                       {% if valores.get('participacion') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="participacion">
+                  <i class="bi bi-people"></i> Participación en clase (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="curso" id="curso" value="1"
+                       {% if valores.get('curso') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="curso">
+                  <i class="bi bi-laptop"></i> Curso en línea (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="opciones_extra" id="opciones_extra" value="1"
+                       {% if valores.get('opciones_extra') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="opciones_extra">
+                  <i class="bi bi-plus-circle"></i> Opciones adicionales (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card card-rubro shadow-sm">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+              <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                <input type="checkbox" class="form-check-input" name="beneficio_comunidad" id="beneficio_comunidad" value="1"
+                       {% if valores.get('beneficio_comunidad') %} checked {% endif %}>
+                <label class="form-check-label ms-2" for="beneficio_comunidad">
+                  <i class="bi bi-heart"></i> Beneficio a la comunidad (10 pts)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botones -->
+      <div class="text-center mt-5 d-flex justify-content-center gap-3">
+        <button type="submit" class="btn btn-success btn-lg">
+          <i class="bi bi-calculator"></i> Calcular Calificación
+        </button>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
+          <i class="bi bi-house"></i> Volver al Inicio
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</body>
+</html>
